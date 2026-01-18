@@ -14,8 +14,13 @@
                 <div class="brand">♠️ PIRO CARD</div>
                 <nav class="nav-links">
                     {% if user.is_authenticated %}
+                        <span style="margin-right: 20px; font-weight: bold;">
+                            {{ user.email }} 님 환영합니다
+                        </span>
+
                         <a href="{% url 'game:list' %}">GAME</a>
                         <a href="{% url 'accounts:ranking' %}">RANKING</a>
+                        
                         <form action="{% url 'account_logout' %}" method="post" style="display:inline;">
                           {% csrf_token %}
                           <button type="submit" style="background:none; border:none; color:inherit; font:inherit; cursor:pointer; opacity:0.7; margin-left:16px;">LOGOUT</button>

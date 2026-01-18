@@ -8,8 +8,7 @@
             <thead>
                 <tr>
                     <th width="20%">RANK</th>
-                    <th width="50%">PLAYER</th>
-                    <th width="30%">SCORE</th>
+                    <th width="50%">PLAYER</th> <th width="30%">SCORE</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,8 +22,9 @@
                         {% endif %}
                     </td>
                     <td style="text-align: left; padding-left: 20px;">
-                        {{ u.username }}
-                        {% if u == user %} (ME){% endif %}
+                        {{ u.email }}
+                        
+                        {% if u == user %} <span style="font-weight:bold; color:#ffcc00;">(ME)</span>{% endif %}
                     </td>
                     <td>{{ u.total_score }}</td>
                 </tr>
