@@ -1,0 +1,14 @@
+      <div id="step1" class="step step1">
+
+        <div class="select-wrap">
+          <select id="defenderSelect">
+            <option value="" selected disabled>상대를 선택하세요</option>
+            {% for u in defenders %}
+              <option value="{{ u.username }}">{{ u.username }}</option>
+            {% endfor %}
+          </select>
+          <span class="caret">▼</span>
+        </div>
+
+        <button id="drawBtn" class="btn" disabled>카드 뽑기</button>
+      </div>
