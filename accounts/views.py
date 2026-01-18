@@ -1,5 +1,6 @@
-from django.contrib.auth import get_user_model
+# accounts/views.py
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
 
 def ranking(request):
     User = get_user_model()

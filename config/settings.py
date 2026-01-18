@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    'allauth.socialaccount.providers.kakao',
 ]
 
 MIDDLEWARE = [
@@ -113,5 +114,13 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
             "key": "",
         }
+    },
+    "kakao": {
+        "APP": {
+            "client_id": os.getenv("KAKAO_CLIENT_ID", ""),  # REST API 키
+            "secret": os.getenv("KAKAO_CLIENT_SECRET", ""), # (선택) 보안 설정 안 했으면 비워도 됨
+            "key": "",
+        }
     }
 }
+SOCIALACCOUNT_LOGIN_ON_GET = True
