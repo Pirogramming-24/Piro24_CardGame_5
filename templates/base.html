@@ -1,0 +1,26 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Card Game{% endblock %}</title>
+
+  <link rel="stylesheet" href="{% static 'base.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <main class="page">
+    <!-- ✅ 중앙 큰 초록 table(판)은 base에서 고정 -->
+    <div class="table">
+        {%block content%}{%endblock%}
+    </div>
+
+
+
+  </main>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
