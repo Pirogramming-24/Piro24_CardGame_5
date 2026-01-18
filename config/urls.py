@@ -1,23 +1,21 @@
 from django.contrib import admin
 from django.urls import path, include
+
 from config import views as config_views
 from accounts import views as accounts_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    path("accounts/", include("accounts.urls")),
-
-    # allauth
+    # allauth (소셜 로그인)
     path("accounts/", include("allauth.urls")),
 
-    # home
+    # 로그인 전 메인 (landing)
     path("", config_views.home, name="home"),
 
-    # ranking
+    # 랭킹
     path("ranking/", accounts_views.ranking, name="ranking"),
 
-    # game
+    # 게임
     path("game/", include(("game.urls", "game"), namespace="game")),
-    path("admin/", admin.site.urls),
 ]

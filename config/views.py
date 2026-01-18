@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 def home(request):
     if request.user.is_authenticated:
-        return render(request, "pages/main_logged_in.html")
+        return redirect("game:home")
     return render(request, "pages/main_logged_out.html")
