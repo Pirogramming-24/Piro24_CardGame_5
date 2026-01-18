@@ -17,4 +17,5 @@ urlpatterns = [
 
     # game
     path("game/", include(("game.urls", "game"), namespace="game")),
+    path("admin/", admin.site.urls),
 ]

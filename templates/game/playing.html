@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Playing{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'game/playing.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="play-panel">
+    <!-- STEP 1: rolebar(상대 고르고 카드뽑기)-->
+    {% include "game/_match_rolebar.html" %}
+
+    <!--step2,3 카드 나오는 거 -->
+    {% include "game/_card_table.html" %} 
+
+  </div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    window.CARD_BASE_URL = "{% static 'cards/' %}";
+</script>
+<script src="{% static 'game/playing.js' %}"></script>
+{% endblock %}
+
