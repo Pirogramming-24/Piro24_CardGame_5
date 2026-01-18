@@ -1,0 +1,168 @@
+/* static/accounts/style.css */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    font-family: "Segoe UI", sans-serif;
+    /* draw_test.css의 배경 그대로 가져옴 */
+    background: radial-gradient(circle at center, #2a5a41, #173b2b 70%);
+    display: grid;
+    place-items: center;
+    color: #f2f7f4;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 레이아웃 컨테이너 */
+.stage {
+    width: min(800px, 92vw);
+    /* 랭킹은 너무 넓지 않게 */
+    height: min(700px, 85vh);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 유리 효과 패널 (draw_test.css .panel 기반) */
+.panel {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #173b2b, #0f2b20);
+    box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.45),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    padding: 32px 26px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 상단 네비게이션 (로고, 링크) */
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brand {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.nav-links a {
+    margin-left: 16px;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.nav-links a:hover {
+    opacity: 1;
+    font-weight: 600;
+}
+
+/* --- 페이지 타이틀 --- */
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 32px;
+    letter-spacing: 0.1em;
+}
+
+/* --- 로그인 버튼 스타일 --- */
+.login-btn-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    /* 중앙 정렬 */
+}
+
+.social-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.kakao {
+    background-color: #FEE500;
+}
+
+.google {
+    background-color: #FFFFFF;
+}
+
+
+/* --- 랭킹 테이블 스타일 --- */
+.ranking-table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    /* 스크롤 가능하게 */
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.ranking-table th {
+    padding: 12px;
+    font-size: 0.9rem;
+    opacity: 0.6;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ranking-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 1rem;
+}
+
+/* 1,2,3위 강조 */
+.rank-1 {
+    color: #FFD700;
+    font-weight: 700;
+}
+
+.rank-2 {
+    color: #C0C0C0;
+    font-weight: 700;
+}
+
+.rank-3 {
+    color: #CD7F32;
+    font-weight: 700;
+}
+
+/* 내 점수 강조 */
+.my-row {
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: bold;
+}

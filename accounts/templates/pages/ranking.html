@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2 class="page-title">HALL OF FAME</h2>
+
+    <div class="ranking-table-wrap">
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th width="20%">RANK</th>
+                    <th width="50%">PLAYER</th> <th width="30%">SCORE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr class="{% if u == user %}my-row{% endif %}">
+                    <td>
+                        {% if forloop.counter == 1 %}🥇
+                        {% elif forloop.counter == 2 %}🥈
+                        {% elif forloop.counter == 3 %}🥉
+                        {% else %}{{ forloop.counter }}
+                        {% endif %}
+                    </td>
+                    <td style="text-align: left; padding-left: 20px;">
+                        {{ u.email }}
+                        
+                        {% if u == user %} <span style="font-weight:bold; color:#ffcc00;">(ME)</span>{% endif %}
+                    </td>
+                    <td>{{ u.total_score }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="padding: 40px; opacity: 0.5;">
+                        아직 플레이 기록이 없습니다.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

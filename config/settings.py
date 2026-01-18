@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    'allauth.socialaccount.providers.kakao',
 ]
 
 MIDDLEWARE = [
@@ -96,6 +97,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
 # allauth
+# settings.py 하단부 교체
+
+# ==========================================
+# Allauth 설정 (Email 로그인 & 닉네임 사용)
+# ==========================================
+
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
@@ -106,16 +113,46 @@ AUTHENTICATION_BACKENDS = (
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-# allauth (v65+ 권장 설정)
-ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_LOGIN_METHODS = {"username", "email"}   # deprecated 대체
-ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]  # deprecated 대체
+# 1. 로그인/가입 기본 정책
+# [중요] 모델에 username 필드가 있다면 'username'으로 지정해야 DB 에러가 안 납니다.
+# (사용자에게 입력만 안 받을 뿐, 내부적으로는 자동 생성해서 채워 넣습니다)
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username' 
 
+ACCOUNT_EMAIL_REQUIRED = True             # 이메일 필수
+ACCOUNT_USERNAME_REQUIRED = False         # [핵심] 사용자에게 아이디 입력창을 띄우지 않음
+ACCOUNT_AUTHENTICATION_METHOD = "email"   # 로그인할 때 이메일 사용
+ACCOUNT_EMAIL_VERIFICATION = "none"       # 이메일 인증 메일 발송 안 함
+
+# 2. 소셜 로그인 설정
+SOCIALACCOUNT_AUTO_SIGNUP = True          # 추가 정보 입력 없이 자동 가입
+SOCIALACCOUNT_LOGIN_ON_GET = True         # 중간 확인 페이지 없이 즉시 로그인 진행
+SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
+
+# 3. 소셜 프로바이더 설정 (닉네임/이메일 가져오기 필수)
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        # Client ID/Secret은 .env에서 가져옵니다
         "APP": {
             "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
             "secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+            "key": "",
+        }
+    },
+    "kakao": {
+        "SCOPE": [
+            "profile_nickname",
+            "account_email",
+        ],
+        "APP": {
+            "client_id": os.getenv("KAKAO_CLIENT_ID", ""),
+            "secret": os.getenv("KAKAO_CLIENT_SECRET", ""),
             "key": "",
         }
     }

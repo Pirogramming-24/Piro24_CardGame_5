@@ -6,6 +6,8 @@ from accounts import views as accounts_views
 urlpatterns = [
     path("admin/", admin.site.urls),
 
+    path("accounts/", include("accounts.urls")),
+
     # allauth
     path("accounts/", include("allauth.urls")),
 
