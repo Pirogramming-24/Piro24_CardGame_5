@@ -4,7 +4,6 @@ const step3 = document.getElementById("step3");
 
 const defenderSelect = document.getElementById("defenderSelect");
 const drawBtn = document.getElementById("drawBtn");
-
 const cardRow = document.getElementById("cardRow");
 
 const selectedImg = document.getElementById("selectedImg");
