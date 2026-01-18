@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  web:
+    image: issuejong/piro-cardgame:latest
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "0"
+      SECRET_KEY: "change-me"
+      ALLOWED_HOSTS: "localhost,127.0.0.1"
