@@ -82,8 +82,12 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# static 폴더가 있을 때만 STATICFILES_DIRS 설정
+STATIC_DIR = BASE_DIR / "static"
+STATICFILES_DIRS = [STATIC_DIR] if STATIC_DIR.exists() else []
+
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -93,6 +97,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # allauth
 SITE_ID = 1
+
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
@@ -101,10 +106,10 @@ AUTHENTICATION_BACKENDS = (
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+# allauth (v65+ 권장 설정)
 ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGIN_METHODS = {"username", "email"}   # deprecated 대체
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]  # deprecated 대체
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
