@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="POST" action="" id="gameForm" style="height: 100%;">
+<form method="POST" action="{% if mode == 'NEW' %}{% url 'game:new' %}{% else %}{% url 'game:play' match_id=match.id %}{% endif %}" id="gameForm" class="game-form">
     {% csrf_token %}
     <input type="hidden" name="selected_card" id="selectedCardInput">
 

@@ -2,152 +2,37 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'game/playing.css' %}">
-    <style>
-        /* CSS 파일에 없을 경우를 대비한 보조 스타일 */
-        .game-form { height: 100%; display: flex; flex-direction: column; justify-content: center; }
-        .card-placeholder {
-            width: 64px; height: 96px; background: #eee; 
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 8px; border: 2px solid #333;
-        }
-        /* Step 전환용 유틸리티 */
-        .hidden { display: none !important; }
-    </style>
+<link rel="stylesheet" href="{% static 'game/playing.css' %}">
+
+<style>
+    /* 로딩 화면 전용 스타일 */
+    .playing-wrapper {
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        height: 70vh; text-align: center; color: white;
+    }
+    .message-box h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .message-box p { font-size: 1.2rem; color: #ccc; margin-bottom: 40px; }
+
+    /* 빙글빙글 로더 */
+    .loader { position: relative; width: 80px; height: 80px; margin: 0 auto; }
+    .loader-circle {
+        display: block; width: 100%; height: 100%; border-radius: 50%;
+        border: 8px solid rgba(255, 255, 255, 0.1);
+        border-top-color: #ffd700;
+        animation: spin 1s infinite linear;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 {% endblock %}
 
 {% block content %}
-<form method="POST" action="" id="gameForm" class="game-form">
-    {% csrf_token %}
-    <input type="hidden" name="selected_card" id="selectedCardInput">
+<meta http-equiv="refresh" content="2; url={% url 'game:detail' match.id %}">
 
-    <div id="step1" class="step step1">
-        <div class="label">
-            {% if mode == "NEW" %}OPPONENT{% else %}DEFENSE{% endif %}
-        </div>
-
-        <div class="select-wrap">
-            {% if mode == "NEW" %}
-                <select name="defender" id="defenderSelect">
-                    <option value="" selected disabled>상대를 선택하세요</option>
-                    {% for u in defenders %}
-                        <option value="{{ u.username }}">{{ u.username }}</option>
-                    {% endfor %}
-                </select>
-                <span class="caret">▼</span>
-            {% else %}
-                <div style="text-align:center; padding: 12px; background: rgba(255,255,255,0.1); border-radius:10px; color:white;">
-                    VS <strong>{{ match.attacker.username }}</strong>
-                </div>
-            {% endif %}
-        </div>
-
-        <button type="button" id="drawBtn" class="btn" {% if mode == "NEW" %}disabled{% endif %}>
-            CARD DRAW
-        </button>
+<div class="playing-wrapper">
+    <div class="message-box">
+        <h1>⚔️ 승부 예측 중...</h1>
+        <p>상대방의 패와 비교하고 있습니다.</p>
+        <div class="loader"><span class="loader-circle"></span></div>
     </div>
-
-    <div id="step2" class="step step2 hidden">
-        <div class="hint">CHOOSE YOUR CARD</div>
-        <div id="cardRow" class="card-row in-place">
-            </div>
-    </div>
-
-    <div id="step3" class="step step3 hidden">
-        <div class="selected-wrap">
-            <div id="finalCardDisplay"></div> 
-            
-            <div class="selected-text">
-                SELECTED: <span id="selectedCardNum">?</span>
-            </div>
-
-            <button type="submit" class="btn" style="background: #ff4757;">
-                {% if mode == "NEW" %}ATTACK{% else %}COUNTER{% endif %}
-            </button>
-        </div>
-    </div>
-</form>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // 1. 데이터 가져오기
-    const randomCards = {{ random_cards|default:"[]" }}; 
-    
-    // 2. 요소 선택
-    const defenderSelect = document.getElementById('defenderSelect');
-    const drawBtn = document.getElementById('drawBtn');
-    const step1 = document.getElementById('step1');
-    const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
-    const cardRow = document.getElementById('cardRow');
-    const selectedCardInput = document.getElementById('selectedCardInput');
-    const selectedCardNum = document.getElementById('selectedCardNum');
-    const finalCardDisplay = document.getElementById('finalCardDisplay');
-
-    // [로직 1] 상대 선택 시 버튼 활성화 (NEW 모드)
-    if (defenderSelect) {
-        defenderSelect.addEventListener('change', function() {
-            if (this.value) {
-                drawBtn.disabled = false;
-                drawBtn.style.opacity = "1";
-            }
-        });
-    }
-
-    // [로직 2] 카드 뽑기 버튼 클릭
-    if (drawBtn) {
-        drawBtn.addEventListener('click', function() {
-            // ★ Step 1 숨기고 Step 2 보여주기
-            step1.classList.add('hidden');
-            step2.classList.remove('hidden');
-            
-            // 카드 생성
-            cardRow.innerHTML = '';
-            randomCards.forEach(num => {
-                const btn = document.createElement('button');
-                btn.type = "button";
-                btn.className = "card-btn";
-                
-                // 이미지 삽입
-                btn.innerHTML = `<img src="/static/cards/card${num}.jpg" alt="${num}">`;
-
-                // 클릭 이벤트 연결
-                btn.onclick = function() {
-                    handleCardClick(this, num);
-                };
-
-                cardRow.appendChild(btn);
-            });
-        });
-    }
-
-    // [로직 3] 카드 선택 처리
-    function handleCardClick(clickedBtn, num) {
-        // 1. 스타일 변경 (dim 처리)
-        document.querySelectorAll('.card-btn').forEach(btn => {
-            btn.classList.remove('picked');
-            btn.classList.add('dim');
-        });
-
-        // 2. 선택된 카드 강조
-        clickedBtn.classList.remove('dim');
-        clickedBtn.classList.add('picked');
-
-        // 3. 값 저장
-        selectedCardInput.value = num;
-        selectedCardNum.innerText = num;
-
-        // 4. 0.6초 뒤 Step 3로 이동
-        setTimeout(() => {
-            step2.classList.add('hidden');
-            step3.classList.remove('hidden');
-        }, 600);
-
-        // 5. 선택된 이미지 복사
-        finalCardDisplay.innerHTML = clickedBtn.innerHTML;
-        const img = finalCardDisplay.querySelector('img');
-        if (img) img.className = 'selected-img';
-    }
-</script>
+</div>
 {% endblock %}
