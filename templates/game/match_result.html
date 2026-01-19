@@ -1,19 +1,191 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Match_result{% endblock %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'game/match_result.css' %}">
+    <link rel="stylesheet" href="{% static 'game/playing.css' %}"> 
+    <style>
+        .result-container {
+            max-width: 500px;      /* 너비도 살짝 줄여서 모바일 친화적으로 */
+            margin: 30px auto;     /* 위쪽 여백 줄임 (50px -> 30px) */
+            text-align: center;
+            color: #fff;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            /* 높이 제한 해제 (내용물이 작아져서 스크롤 불필요) */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .vs-title { 
+            font-size: 1.5rem;     /* 폰트 사이즈 줄임 */
+            margin-bottom: 10px;   /* 여백 줄임 (20px -> 10px) */
+            font-weight: bold; 
+            color: #ccc;           /* 색상을 살짝 연하게 */
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 18px; /* 크기 살짝 조정 */
+            font-size: 0.95rem;
+            border-radius: 30px; /* 더 둥글게 */
+            margin-bottom: 20px;
+            font-weight: bold;
+            /* 기본 배경 (PENDING용) */
+            /* background: #6f42c1; */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 그림자 추가 */
+        }
+
+        /* 게임 종료 상태 배지 스타일 (추가됨) */
+        .status-badge.finished {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+
+        /* [핵심] 승리 문구 (h2) 여백 제어 */
+        .result-box h2 {
+            margin: 5px 0 15px 0;  /* 위 5px, 아래 15px로 확 줄임 */
+            font-size: 1.8rem;     /* 너무 크지 않게 조절 */
+            line-height: 1.2;
+        }
+
+        .card-box {
+            font-size: 3rem;       /* 숫자 크기 적당히 */
+            font-weight: bold;
+            color: #ffd700;
+            margin: 10px 0;        /* 카드 위아래 여백 축소 */
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* 점수 표기 (+10, -1 등) */
+        .delta-score {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        /* VS 글자 */
+        .vs-middle {
+            align-self: center; 
+            font-size: 1.5rem; 
+            margin: 0 10px; 
+            color: #888;
+        }
+
+        .btn-list {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #3a4b3c; /* 세련된 어두운 회록색 */
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 25px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4); /* 부드러운 그림자 */
+            transition: all 0.3s ease; /* 부드러운 전환 효과 */
+        }
+
+        .btn-list:hover {
+            background: #4a5b4c; /* 호버 시 살짝 밝게 */
+            transform: translateY(-2px); /* 호버 시 살짝 올라감 */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .btn-counter {
+            /* background: #28a745; */
+            text-decoration: none; /* 밑줄 제거 */
+            display: inline-block;
+            margin-top: 15px;
+            color: white; /* 글자색 흰색 고정 */
+        }
+        .btn-counter:hover {
+            color: white; /* 호버 시에도 흰색 유지 */
+        }
+
+    </style>
 {% endblock %}
 
 {% block content %}
+<div class="result-container">
+    
+    <div class="vs-title">
+        {{ match.attacker.username }} vs {{ match.defender.username }}
+    </div>
 
-  
+    <div class="status-badge">
+        {% if match.status == "PENDING" %}
+            ⏳ 진행 중
+        {% elif match.status == "FINISHED" %}
+            🏁 게임 종료
+        {% else %}
+            ❌ 취소됨
+        {% endif %}
+    </div>
+
+    {% if match.status == "PENDING" %}
+        
+        {% if user == match.attacker %}
+            <div class="info-text">
+                <h3 style="margin-bottom: 10px;">수락 대기 중</h3>
+                <p style="margin-bottom: 5px;">낸 카드: <strong>{{ match.attacker_card }}</strong></p>
+                <p style="font-size: 0.9rem; color: #aaa;">
+                    ({% if match.rule == "HIGH_WINS" %}높은 숫자 승리{% else %}낮은 숫자 승리{% endif %})
+                </p>
+            </div>
+            
+            <form action="{% url 'game:cancel' match.id %}" method="POST" style="margin-top: 20px;">
+                {% csrf_token %}
+                <button type="submit" class="btn" style="background: #dc3545; padding: 8px 16px; font-size: 0.9rem;">게임 취소</button>
+            </form>
+
+        {% elif user == match.defender %}
+            <div class="info-text">
+                <h3 style="margin: 0 0 10px 0;">도전장이 왔습니다!</h3>
+                <p>상대가 공격했습니다.</p>
+            </div>
+            
+            <a href="{% url 'game:counter_start' match_id=match.id %}" class="btn btn-counter">
+                🛡️ 반격하러 가기
+            </a>
+        {% endif %}
+
+    {% elif match.status == "FINISHED" %}
+        
+        <div class="result-box">
+            <h2>
+                {% if match.result == "DRAW" %}
+                    🤝 무승부!
+                {% elif match.result == "ATTACKER_WIN" %}
+                    🏆 {{ match.attacker.username }} 승리!
+                {% else %}
+                    🏆 {{ match.defender.username }} 승리!
+                {% endif %}
+            </h2>
+
+            <div style="display: flex; justify-content: center; align-items: center; margin: 10px 0 20px 0;">
+                
+                <div>
+                    <p style="font-size: 0.9rem;">{{ match.attacker.username }}</p>
+                    <div class="card-box">{{ match.attacker_card }}</div>
+                    <p class="delta-score" style="color: {% if match.result == 'ATTACKER_WIN' %}#4cd137{% elif match.result == 'DRAW' %}#ddd{% else %}#e84118{% endif %};">
+                        {% if match.result == "ATTACKER_WIN" %}+{{ match.attacker_delta }}{% else %}{{ match.attacker_delta }}{% endif %}
+                    </p>
+                </div>
+
+                <div class="vs-middle">VS</div>
+
+                <div>
+                    <p style="font-size: 0.9rem;">{{ match.defender.username }}</p>
+                    <div class="card-box">{{ match.defender_card }}</div>
+                    <p class="delta-score" style="color: {% if match.result == 'DEFENDER_WIN' %}#4cd137{% elif match.result == 'DRAW' %}#ddd{% else %}#e84118{% endif %};">
+                        {% if match.result == "DEFENDER_WIN" %}+{{ match.defender_delta }}{% else %}{{ match.defender_delta }}{% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <a href="{% url 'game:list' %}" class="btn-list">목록으로</a>
+        </div>
+
+    {% endif %}
+
+</div>
 {% endblock %}
-
-
-{% block extra_js %}
-
-{% endblock %}
-

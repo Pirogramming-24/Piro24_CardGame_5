@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-container" style="text-align: center; margin-top: 50px;">
+    <h1 style="color: #6f42c1; font-size: 3rem;">Piro Game</h1>
+    
+    <div style="margin: 20px 0;">
+        <h3>현재 플레이어: <strong>{{ user.username }}</strong></h3>
+        <p>점수: {{ user.total_score|default:0 }} 점</p>
+    </div>
+
+    <div class="button-group" style="display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto;">
+        
+        <a href="{% url 'game:new' %}" class="btn btn-primary" style="padding: 15px; background-color: #6f42c1; color: white; text-decoration: none; border-radius: 10px;">
+            GAME START (공격하기)
+        </a>
+
+        <a href="{% url 'game:list' %}" class="btn btn-secondary" style="padding: 15px; background-color: #e2e6ea; color: black; text-decoration: none; border-radius: 10px;">
+            GAME LIST (전적보기)
+        </a>
+
+        <a href="{% url 'ranking' %}" class="btn btn-info" style="padding: 15px; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 10px;">
+            RANKING (랭킹)
+        </a>
+
+    </div>
+</div>
+{% endblock %}

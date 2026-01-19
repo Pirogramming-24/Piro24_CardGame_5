@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'game/playing.css' %}">
+{% endblock %}
+
+{% block content %}
+<form method="POST" action="{% if mode == 'NEW' %}{% url 'game:new' %}{% else %}{% url 'game:play' match_id=match.id %}{% endif %}" id="gameForm" class="game-form">
+    {% csrf_token %}
+    <input type="hidden" name="selected_card" id="selectedCardInput">
+
+    <div id="step1" class="step step1">
+        <div class="label">
+            {% if mode == "NEW" %}OPPONENT{% else %}DEFENSE{% endif %}
+        </div>
+
+        <div class="select-wrap">
+            {% if mode == "NEW" %}
+                <select name="defender" id="defenderSelect">
+                    <option value="" selected disabled>상대를 선택하세요</option>
+                    {% for u in defenders %}
+                        <option value="{{ u.username }}">{{ u.username }}</option>
+                    {% endfor %}
+                </select>
+                <span class="caret">▼</span>
+            {% else %}
+                <div style="text-align:center; padding: 12px; background: rgba(255,255,255,0.1); border-radius:10px; color:white;">
+                    VS <strong>{{ match.attacker }}</strong>
+                </div>
+                {% endif %}
+        </div>
+
+        <button type="button" id="drawBtn" class="btn" {% if mode == "NEW" %}disabled{% endif %}>
+            CARD DRAW
+        </button>
+    </div>
+
+    <div id="step2" class="step step2 hidden">
+        <div class="hint">CHOOSE YOUR CARD</div>
+        <div id="cardRow" class="card-row in-place">
+            </div>
+    </div>
+
+    <div id="step3" class="step step3 hidden">
+        <div class="selected-wrap">
+            <div id="finalCardDisplay"></div> 
+            
+            <div class="selected-text">
+                SELECTED: <span id="selectedCardNum">?</span>
+            </div>
+
+            <button type="submit" class="btn" style="background: #ff4757;">
+                {% if mode == "NEW" %}ATTACK{% else %}COUNTER{% endif %}
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const randomCards = {{ random_cards|default:"[]" }}; 
+    
+    const defenderSelect = document.getElementById('defenderSelect');
+    const drawBtn = document.getElementById('drawBtn');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const cardRow = document.getElementById('cardRow');
+    const selectedCardInput = document.getElementById('selectedCardInput');
+    const selectedCardNum = document.getElementById('selectedCardNum');
+    const finalCardDisplay = document.getElementById('finalCardDisplay');
+
+    // [로직 1] 상대 선택 시 버튼 활성화
+    if (defenderSelect) {
+        defenderSelect.addEventListener('change', function() {
+            if (this.value) {
+                drawBtn.disabled = false;
+                drawBtn.style.opacity = "1";
+            }
+        });
+    }
+
+    // [로직 2] 카드 뽑기 버튼 클릭
+    if (drawBtn) {
+        drawBtn.addEventListener('click', function() {
+            // ★ 수정됨: Step 1은 숨기고, Step 2를 보여줍니다.
+            step1.classList.add('hidden'); // 이 줄이 없어서 화면이 안 넘어간 겁니다!
+            step2.classList.remove('hidden');
+            
+            // 카드 생성
+            cardRow.innerHTML = '';
+            randomCards.forEach(num => {
+                const btn = document.createElement('button');
+                btn.type = "button";
+                btn.className = "card-btn";
+                
+                // 이미지 태그 생성
+                btn.innerHTML = `<img src="/static/cards/card${num}.jpg" alt="${num}">`;
+
+                // 클릭 이벤트
+                btn.onclick = function() {
+                    handleCardClick(this, num);
+                };
+
+                cardRow.appendChild(btn);
+            });
+            
+            // (참고) Step 1이 숨겨지므로 버튼 비활성화 코드는 사실상 필요 없지만 유지해도 됩니다.
+            this.disabled = true;
+            this.innerText = "CARDS OPENED";
+        });
+    }
+
+    // [로직 3] 카드 선택 시 애니메이션 처리 및 Step 3 이동
+    function handleCardClick(clickedBtn, num) {
+        // 1. 모든 카드 dim 처리
+        document.querySelectorAll('.card-btn').forEach(btn => {
+            btn.classList.remove('picked');
+            btn.classList.add('dim');
+        });
+
+        // 2. 클릭한 카드만 picked (잠깐 보여주기용)
+        clickedBtn.classList.remove('dim');
+        clickedBtn.classList.add('picked');
+
+        // 3. 데이터 저장
+        selectedCardInput.value = num;
+        selectedCardNum.innerText = num;
+
+        // ★ 수정됨: 0.5초 뒤에 Step 2(카드 목록)를 숨기고 Step 3(결과 확인)로 넘어갑니다.
+        // (바로 넘어가면 카드가 내려오는 애니메이션을 못 보니까 setTimeout을 씁니다)
+        setTimeout(() => {
+            step2.classList.add('hidden');    // Step 2 숨기기
+            step3.classList.remove('hidden'); // Step 3 보여주기
+        }, 600); // 0.6초 딜레이
+
+        // 5. 선택한 카드 이미지 복사해서 Step 3에 보여주기
+        finalCardDisplay.innerHTML = clickedBtn.innerHTML;
+        
+        // 복사된 이미지 스타일 잡기
+        const img = finalCardDisplay.querySelector('img');
+        if (img) {
+            img.className = 'selected-img';
+        }
+    }
+</script>
+{% endblock %}
