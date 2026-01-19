@@ -10,7 +10,7 @@
 {% block content %}
 <div class="auth-container ranking-container">
     
-    <div style="text-align: center; margin-top: 20px;">
+    <div class="ranking-header">
         <h2 class="page-title">🏆 Hall of Fame 🏆</h2>
     </div>
 
@@ -18,14 +18,15 @@
         <table class="ranking-table">
             <thead>
                 <tr>
-                    <th width="20%">Rank</th>
-                    <th width="50%">Player</th>
-                    <th width="30%">Record</th>
+                    <th class="col-rank">Rank</th>
+                    <th class="col-player">Player</th>
+                    <th class="col-record">Record</th>
+                    <th class="col-score">Score</th>
                 </tr>
             </thead>
             <tbody>
                 {% for player in users %}
-                <tr class="rank-{{ forloop.counter }} {% if player == request.user %}my-rank{% endif %}">
+                <tr class="rank-row rank-{{ forloop.counter }} {% if player == request.user %}my-rank{% endif %}">
                     
                     <td>
                         {% if forloop.counter == 1 %}🥇
@@ -42,15 +43,18 @@
                         {% endif %}
                     </td>
 
-                    <td class="record-text">
+                    <td class="record-cell">
                         {{ player.game_count }}전 
-                        <span class="win-text">{{ player.win_count }}승</span>
+                        <span class="win-count">{{ player.win_count }}승</span>
                     </td>
                     
+                    <td class="score-cell">
+                        {{ player.total_score|default:0 }}
+                    </td> 
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3" class="empty-msg">
+                    <td colspan="4" class="empty-msg">
                         아직 랭킹 데이터가 없습니다.<br>
                         게임의 첫 번째 승자가 되어보세요!
                     </td>
