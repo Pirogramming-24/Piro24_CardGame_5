@@ -1,41 +1,66 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ranking - Hall of Fame{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'account/account.css' %}">
+{% endblock %}
 
 {% block content %}
-    <h2 class="page-title">HALL OF FAME</h2>
+<div class="auth-container ranking-container">
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <h2 class="page-title">🏆 Hall of Fame 🏆</h2>
+    </div>
 
-    <div class="ranking-table-wrap">
+    <div class="ranking-list-box">
         <table class="ranking-table">
             <thead>
                 <tr>
-                    <th width="20%">RANK</th>
-                    <th width="50%">PLAYER</th> <th width="30%">SCORE</th>
+                    <th width="20%">Rank</th>
+                    <th width="50%">Player</th>
+                    <th width="30%">Record</th>
                 </tr>
             </thead>
             <tbody>
-                {% for u in users %}
-                <tr class="{% if u == user %}my-row{% endif %}">
+                {% for player in users %}
+                <tr class="rank-{{ forloop.counter }} {% if player == request.user %}my-rank{% endif %}">
+                    
                     <td>
                         {% if forloop.counter == 1 %}🥇
                         {% elif forloop.counter == 2 %}🥈
                         {% elif forloop.counter == 3 %}🥉
-                        {% else %}{{ forloop.counter }}
+                        {% else %}{{ forloop.counter }}{% endif %}
+                    </td>
+                    
+                    <td>
+                        {{ player.username }}
+                        
+                        {% if player == request.user %}
+                            <span class="me-badge">(Me)</span>
                         {% endif %}
                     </td>
-                    <td style="text-align: left; padding-left: 20px;">
-                        {{ u.email }}
-                        
-                        {% if u == user %} <span style="font-weight:bold; color:#ffcc00;">(ME)</span>{% endif %}
+
+                    <td class="record-text">
+                        {{ player.game_count }}전 
+                        <span class="win-text">{{ player.win_count }}승</span>
                     </td>
-                    <td>{{ u.total_score }}</td>
+                    
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3" style="padding: 40px; opacity: 0.5;">
-                        아직 플레이 기록이 없습니다.
+                    <td colspan="3" class="empty-msg">
+                        아직 랭킹 데이터가 없습니다.<br>
+                        게임의 첫 번째 승자가 되어보세요!
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <a href="{% url 'home' %}" class="btn-back">메인 메뉴로</a>
+
+</div>
 {% endblock %}
