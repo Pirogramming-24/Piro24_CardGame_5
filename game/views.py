@@ -184,13 +184,69 @@ def home(request):
 
 @login_required
 def match_list(request):
-    """전적 리스트"""
+    """전적 리스트: 나를 기준으로 승/패/진행중 텍스트를 가공해서 전달"""
     user = request.user
+    # 나랑 관련된 게임 모두 조회 (최신순)
     matches = Game.objects.filter(
         Q(attacker=user) | Q(defender=user)
     ).order_by('-created_at')
+
+    # 템플릿에 넘겨줄 가공된 데이터 리스트
+    rows = []
+
+    for match in matches:
+        # 기본 정보
+        row = {
+            'id': match.id,
+            'attacker': match.attacker.username,
+            'defender': match.defender.username,
+            'state_text': '',   # 화면에 표시할 텍스트 (예: 승리, 패배, 대결 수락 대기 중)
+            'result_class': ''  # CSS 클래스 (예: win, lose, pending)
+        }
+
+        # 1. 진행 중인 게임 (PENDING)
+        if match.status == Game.Status.PENDING:
+            row['result_class'] = 'pending'
+            if user == match.attacker:
+                row['state_text'] = "수락 대기 중 ⏳"
+            else:
+                row['state_text'] = "도전장이 왔습니다! ⚔️" # 수비자 입장
+        
+        # 2. 종료된 게임 (FINISHED)
+        elif match.status == Game.Status.FINISHED:
+            # (1) 무승부
+            if match.result == Game.Result.DRAW:
+                row['state_text'] = "무승부 🤝"
+                row['result_class'] = 'draw'
+            
+            # (2) 승패 결정
+            else:
+                # 내가 공격자일 때
+                if user == match.attacker:
+                    if match.result == Game.Result.ATTACKER_WIN:
+                        row['state_text'] = "승리 🏆"
+                        row['result_class'] = 'win'
+                    else:
+                        row['state_text'] = "패배 😭"
+                        row['result_class'] = 'lose'
+                # 내가 수비자일 때
+                else:
+                    if match.result == Game.Result.DEFENDER_WIN:
+                        row['state_text'] = "승리 🏆"
+                        row['result_class'] = 'win'
+                    else:
+                        row['state_text'] = "패배 😭"
+                        row['result_class'] = 'lose'
+        
+        # 3. 취소된 게임 등 기타
+        else:
+            row['state_text'] = "취소됨"
+            row['result_class'] = 'cancel'
+
+        rows.append(row)
     
-    return render(request, "game/match_list.html", {"matches": matches})
+    # 템플릿 변수명을 'matches'가 아니라 'rows'로 전달
+    return render(request, "game/match_list.html", {"rows": rows})
 
 # ==========================================
 # 2. 게임 생성 (공격하기)
