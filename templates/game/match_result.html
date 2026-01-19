@@ -8,8 +8,29 @@
 {% endblock %}
 
 {% block content %}
+    <div class="match-card">
 
-  
+  {% include "game/_match_header.html" %}
+
+  <div class="match-grid">
+    {# attacker box #}
+    <div class="player-box {{ attacker_box_class }}">
+      <div class="player-role">ATTACKER</div>
+      <div class="player-name">{{ game.attacker.username }}</div>
+      <div class="player-pick">선택한 숫자: {{ game.attacker_card|default:"미정" }}</div>
+    </div>
+
+    {# defender box #}
+    <div class="player-box {{ defender_box_class }}">
+      <div class="player-role">DEFENDER</div>
+      <div class="player-name">{{ game.defender.username }}</div>
+      <div class="player-pick">선택한 숫자: {{ game.defender_card|default:"미정" }}</div>
+    </div>
+  </div>
+
+  {% include "game/_match_actions.html" %}
+
+  </div>
 {% endblock %}
 
 

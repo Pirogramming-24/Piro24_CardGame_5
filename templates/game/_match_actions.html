@@ -1,0 +1,28 @@
+{# templates/game/_match_actions.html #}
+
+<div class="match-actions">
+
+  {% if mode == "pending_defender" %}
+    <form method="post" action="{% url 'game:counter' game.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn primary">
+        COUNTER ATTACK
+      </button>
+    </form>
+
+  {% elif mode == "pending_attacker" %}
+    <form method="post" action="{% url 'game:cancel' game.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn ghost">
+        게임 취소
+      </button>
+    </form>
+
+  {% elif mode == "finished" %}
+    <a href="{% url 'game:list' %}" class="btn ghost">
+      목록으로
+    </a>
+
+  {% endif %}
+
+</div>

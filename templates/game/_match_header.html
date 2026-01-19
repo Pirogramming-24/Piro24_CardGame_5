@@ -1,0 +1,37 @@
+{# templates/game/_match_header.html #}
+
+<div class="match-header">
+
+  {% if mode == "pending_attacker" %}
+    <div class="match-status waiting">
+      <span class="label">진행중</span>
+      <span class="desc">상대의 반격을 기다리고 있습니다.</span>
+    </div>
+
+  {% elif mode == "pending_defender" %}
+    <div class="match-status counter">
+      <span class="label">진행중</span>
+      <span class="desc">반격할 차례입니다.</span>
+    </div>
+
+  {% elif mode == "finished" %}
+    <div class="match-status finished">
+      <span class="label">결과</span>
+      {% if game.result == "DRAW" %}
+        <span class="desc">무승부</span>
+      {% elif game.result == "ATTACKER_WIN" %}
+        <span class="desc">ATTACKER 승리</span>
+      {% else %}
+        <span class="desc">DEFENDER 승리</span>
+      {% endif %}
+    </div>
+
+  {% elif mode == "cancelled" %}
+    <div class="match-status cancelled">
+      <span class="label">취소됨</span>
+      <span class="desc">이 게임은 취소되었습니다.</span>
+    </div>
+
+  {% endif %}
+
+</div>

@@ -154,3 +154,50 @@ def cancel_match(request: HttpRequest, match_id: int) -> HttpResponse:
     del _FAKE_DB[match_id]
     messages.success(request, "게임을 취소했습니다.")
     return redirect("game:home")
+
+
+
+@login_required
+def match_detail(request, game_id: int):
+    game = get_object_or_404(Game, id=game_id)
+    user = request.user
+
+    # 🔒 권한 체크: attacker / defender만 접근 가능
+    if user != game.attacker and user != game.defender:
+        return redirect("game:list")
+
+    # =============================
+    # 상태 분기
+    # =============================
+
+    # 1️⃣ FINISHED
+    if game.status == Game.Status.FINISHED:
+        mode = "finished"
+
+    # 2️⃣ CANCELLED
+    elif game.status == Game.Status.CANCELLED:
+        mode = "cancelled"
+
+    # 3️⃣ PENDING
+    else:  # PENDING
+        # attacker 관점 (상대 대기 중)
+        if user == game.attacker and game.defender_card is None:
+            mode = "pending_attacker"
+
+        # defender 관점 (반격해야 함)
+        elif user == game.defender and game.defender_card is None:
+            mode = "pending_defender"
+
+        # 예외(이론상 거의 없음, 안전장치)
+        else:
+            mode = "pending"
+
+    return render(
+        request,
+        "game/match_result.html",
+        {
+            "game": game,
+            "mode": mode,      # ⭐ 템플릿 분기 핵심
+            "user_role": "attacker" if user == game.attacker else "defender",
+        },
+    )
