@@ -10,7 +10,7 @@
             text-align: center;
             color: #fff;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
             /* 높이 제한 해제 (내용물이 작아져서 스크롤 불필요) */
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -25,13 +25,22 @@
 
         .status-badge {
             display: inline-block;
-            padding: 6px 15px;     /* 배지 크기 축소 */
-            font-size: 0.9rem;     /* 글자 크기 축소 */
-            border-radius: 20px;
-            background: #6f42c1;
-            margin-bottom: 15px;   /* 여백 대폭 축소 (30px -> 15px) */
+            padding: 8px 18px; /* 크기 살짝 조정 */
+            font-size: 0.95rem;
+            border-radius: 30px; /* 더 둥글게 */
+            margin-bottom: 20px;
             font-weight: bold;
+            /* 기본 배경 (PENDING용) */
+            /* background: #6f42c1; */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 그림자 추가 */
         }
+
+        /* 게임 종료 상태 배지 스타일 (추가됨) */
+        .status-badge.finished {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
 
         /* [핵심] 승리 문구 (h2) 여백 제어 */
         .result-box h2 {
@@ -61,6 +70,37 @@
             margin: 0 10px; 
             color: #888;
         }
+
+        .btn-list {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #3a4b3c; /* 세련된 어두운 회록색 */
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 25px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4); /* 부드러운 그림자 */
+            transition: all 0.3s ease; /* 부드러운 전환 효과 */
+        }
+
+        .btn-list:hover {
+            background: #4a5b4c; /* 호버 시 살짝 밝게 */
+            transform: translateY(-2px); /* 호버 시 살짝 올라감 */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .btn-counter {
+            /* background: #28a745; */
+            text-decoration: none; /* 밑줄 제거 */
+            display: inline-block;
+            margin-top: 15px;
+            color: white; /* 글자색 흰색 고정 */
+        }
+        .btn-counter:hover {
+            color: white; /* 호버 시에도 흰색 유지 */
+        }
+
     </style>
 {% endblock %}
 
@@ -103,7 +143,7 @@
                 <p>상대가 공격했습니다.</p>
             </div>
             
-            <a href="{% url 'game:counter_start' match_id=match.id %}" class="btn" style="background: #28a745; margin-top: 15px;">
+            <a href="{% url 'game:counter_start' match_id=match.id %}" class="btn btn-counter">
                 🛡️ 반격하러 가기
             </a>
         {% endif %}
@@ -142,7 +182,7 @@
                 </div>
             </div>
 
-            <a href="{% url 'game:list' %}" class="btn" style="padding: 10px 20px;">목록으로</a>
+            <a href="{% url 'game:list' %}" class="btn-list">목록으로</a>
         </div>
 
     {% endif %}
