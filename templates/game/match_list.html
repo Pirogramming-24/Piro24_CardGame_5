@@ -19,7 +19,6 @@
           <div class="cell">{{ r.attacker }}</div>
           <div class="cell">{{ r.defender }}</div>
 
-          <!-- ✅ 무조건 match_result로 -->
           <a class="cell status-link" href="{% url 'game:detail' r.id %}">
             {{ r.state_text }}
           </a>

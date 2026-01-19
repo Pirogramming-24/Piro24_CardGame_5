@@ -50,7 +50,6 @@ function renderTenCards() {
         btn.style.animationDelay = `${n * 0.1}s`;
 
         const img = document.createElement("img");
-        // ★ 수정됨: Django static 경로 활용
         img.src = `${window.CARD_BASE_URL}card${n}.jpg`;
         img.alt = `card ${n}`;
 
