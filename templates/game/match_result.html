@@ -1,19 +1,112 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Match_result{% endblock %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'game/match_result.css' %}">
+    <link rel="stylesheet" href="{% static 'game/playing.css' %}"> 
+    <style>
+        .result-container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            color: #fff;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5); /* 잘 보이게 배경 추가 */
+            border-radius: 15px;
+        }
+        .vs-title { font-size: 2rem; margin-bottom: 20px; font-weight: bold; }
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: #6f42c1;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        .card-box {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 20px 0;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .score-info { font-size: 1.2rem; color: #ddd; margin-bottom: 30px; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+    </style>
 {% endblock %}
 
 {% block content %}
+<div class="result-container">
+    
+    <div class="vs-title">
+        {{ match.attacker.username }} <span style="font-size: 1rem; color:#aaa;">vs</span> {{ match.defender.username }}
+    </div>
 
-  
+    <div class="status-badge">
+        {% if match.status == "PENDING" %}
+            ⏳ 진행 중 (Waiting)
+        {% elif match.status == "FINISHED" %}
+            🏁 게임 종료 (Finished)
+        {% else %}
+            ❌ 취소됨
+        {% endif %}
+    </div>
+
+    {% if match.status == "PENDING" %}
+        
+        {% if user == match.attacker %}
+            <div class="info-text">
+                <h3>상대방의 수락을 기다리고 있습니다.</h3>
+                <p>내가 낸 카드: <strong>{{ match.attacker_card }}</strong></p>
+                <p>룰: {% if match.rule == "HIGH_WINS" %}높은 숫자 승리{% else %}낮은 숫자 승리{% endif %}</p>
+            </div>
+            
+            <form action="{% url 'game:cancel' match.id %}" method="POST" style="margin-top: 20px;">
+                {% csrf_token %}
+                <button type="submit" class="btn" style="background: #dc3545;">게임 취소하기</button>
+            </form>
+
+        {% elif user == match.defender %}
+            <div class="info-text">
+                <h3>도전장이 도착했습니다!</h3>
+                <p>상대방이 공격했습니다. 반격하시겠습니까?</p>
+            </div>
+            
+            <a href="{% url 'game:counter' match.id %}" class="btn" style="background: #28a745; text-decoration: none; display: inline-block; margin-top: 20px;">
+                🛡️ 반격하러 가기
+            </a>
+        {% endif %}
+
+    {% elif match.status == "FINISHED" %}
+        
+        <div class="result-box">
+            <h2>
+                {% if match.result == "DRAW" %}
+                    🤝 무승부!
+                {% elif match.result == "ATTACKER_WIN" %}
+                    🏆 {{ match.attacker.username }} 승리!
+                {% else %}
+                    🏆 {{ match.defender.username }} 승리!
+                {% endif %}
+            </h2>
+
+            <div style="display: flex; justify-content: center; gap: 50px; margin: 30px 0;">
+                <div>
+                    <p>{{ match.attacker.username }}</p>
+                    <div class="card-box">{{ match.attacker_card }}</div>
+                    <p>{% if match.result == "ATTACKER_WIN" %}+{{ match.attacker_delta }}{% else %}{{ match.attacker_delta }}{% endif %}</p>
+                </div>
+                <div style="align-self: center; font-size: 2rem;">VS</div>
+                <div>
+                    <p>{{ match.defender.username }}</p>
+                    <div class="card-box">{{ match.defender_card }}</div>
+                    <p>{% if match.result == "DEFENDER_WIN" %}+{{ match.defender_delta }}{% else %}{{ match.defender_delta }}{% endif %}</p>
+                </div>
+            </div>
+
+            <a href="{% url 'game:list' %}" class="btn">목록으로 돌아가기</a>
+        </div>
+
+    {% endif %}
+
+</div>
 {% endblock %}
-
-
-{% block extra_js %}
-
-{% endblock %}
-
