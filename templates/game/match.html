@@ -3,23 +3,6 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'game/playing.css' %}">
-    <style>
-        .hidden { display: none !important; }
-        
-        /* 카드 나열 영역 */
-        .card-row { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            gap: 15px; 
-            max-width: 850px; 
-            margin: 30px auto; 
-            padding-bottom: 120px;
-        }
-        
-        /* 클릭 금지 커서 */
-        .not-allowed { cursor: not-allowed !important; }
-    </style>
 {% endblock %}
 
 {% block content %}
