@@ -1,20 +1,32 @@
 {% extends 'base.html' %}
 {% load socialaccount %}
+{% load static %}
+
+{% block title %}Login - Card Game{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'account/account.css' %}">
+{% endblock %}
 
 {% block content %}
-<div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-    
-    <h2 class="page-title">LOGIN</h2>
-
-    <div class="login-btn-wrap">
-        <a href="{% provider_login_url 'kakao' %}" class="social-btn kakao">
-            <span>💬 카카오 로그인</span>
-        </a>
+<div class="auth-container">
+    <div class="login-box">
+        <h1 class="page-title">GAME LOGIN</h1>
 
         <a href="{% provider_login_url 'google' %}" class="social-btn google">
-            <span>G 구글 로그인</span>
+            <span>G</span> Google 계정으로 시작
         </a>
-    </div>
 
+        <a href="{% provider_login_url 'kakao' %}" class="social-btn kakao">
+            <span>K</span> Kakao 계정으로 시작
+        </a>
+
+        <div class="divider">OR</div>
+
+        <p class="info-text">
+            소셜 로그인으로 별도의 가입 없이<br>
+            즉시 게임에 참여하세요.
+        </p>
+    </div>
 </div>
 {% endblock %}
