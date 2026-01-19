@@ -11,14 +11,31 @@
 </head>
 <body>
 
+  <header class="navbar">
+      <div class="nav-brand">
+          <a href="{% url 'home' %}">CARD GAME</a>
+      </div>
+      
+      <nav class="nav-links">
+          {% if user.is_authenticated %}
+              <a href="{% url 'game:new' %}">NEW MATCH</a> 
+              <a href="{% url 'ranking' %}">RANKING</a>
+              
+              <form action="{% url 'account_logout' %}" method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="nav-btn">LOG OUT</button>
+              </form>
+          {% else %}
+              <a href="{% url 'account_login' %}">LOG IN</a>
+          {% endif %}
+      </nav>
+  </header>
+
   <main class="page">
-    <!-- ✅ 중앙 큰 초록 table(판)은 base에서 고정 -->
     <div class="table">
-        {%block content%}{%endblock%}
+        {% block content %}
+        {% endblock %}
     </div>
-
-
-
   </main>
 
   {% block extra_js %}{% endblock %}
