@@ -1,11 +1,15 @@
 from dataclasses import dataclass
 from enum import Enum
+import random
 from typing import Dict
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import redirect, render
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+from game.models import Game
 
 
 class MatchStatus(str, Enum):
@@ -26,52 +30,91 @@ _FAKE_DB: Dict[int, FakeMatch] = {}
 _SEQ = 1
 
 
-def _next_id() -> int:
-    global _SEQ
-    v = _SEQ
-    _SEQ += 1
-    return v
+def _draw_hand() -> list[int]:
+    return random.sample(range(1, 11), 5)
+
+
+def _random_rule() -> str:
+    return random.choice([Game.Rule.HIGH_WINS, Game.Rule.LOW_WINS])
 
 
 @login_required
 def home(request: HttpRequest) -> HttpResponse:
-    # 로그인 후 메인: new match / list 버튼만 있어도 됨
+    # 로그인 후 메인 (NEW / LIST 버튼)
     return render(request, "game/main_logged_in.html")
 
 
 @login_required
 def match_list(request: HttpRequest) -> HttpResponse:
-    # 임시: 내 관련 매치만 보여주기
-    username = request.user.username
-    matches = [
-        m for m in _FAKE_DB.values()
-        if m.attacker == username or m.defender == username
-    ]
-    matches.sort(key=lambda x: x.id, reverse=True)
+    """
+    📋 내 게임 리스트
+    """
+    user = request.user
+    matches = (
+        Game.objects
+        .filter(Q(attacker=user) | Q(defender=user))
+        .order_by("-id")
+    )
     return render(request, "game/match_list.html", {"matches": matches})
 
 
 @login_required
 def new_match(request: HttpRequest) -> HttpResponse:
-    # NEW MATCH 화면
+    """
+    🎮 게임 생성 (공격)
+    """
+    User = get_user_model()
+
     if request.method == "GET":
-        return render(request, "game/match.html", {"mode": "NEW"})
+        hand = _draw_hand()
+        request.session["new_match_hand"] = hand
+
+        candidates = User.objects.exclude(id=request.user.id)
+
+        return render(
+            request,
+            "game/match.html",
+            {
+                "mode": "NEW",
+                "hand": hand,
+                "candidates": candidates,
+            },
+        )
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["GET", "POST"])
 
-    # 임시로 defender 문자열만 받음 (DB 붙이면 User 선택)
-    defender = (request.POST.get("defender") or "").strip() or "defender"
-    match_id = _next_id()
-    _FAKE_DB[match_id] = FakeMatch(
-        id=match_id,
-        attacker=request.user.username,
+    defender_id = request.POST.get("defender_id")
+    attacker_card_raw = request.POST.get("attacker_card")
+
+    if not defender_id or not attacker_card_raw:
+        return HttpResponseBadRequest("필수 값이 누락되었습니다.")
+
+    try:
+        attacker_card = int(attacker_card_raw)
+    except ValueError:
+        return HttpResponseBadRequest("카드는 숫자여야 합니다.")
+
+    hand = request.session.get("new_match_hand", [])
+    if attacker_card not in hand:
+        messages.error(request, "유효하지 않은 카드입니다.")
+        return redirect("game:new")
+
+    defender = get_object_or_404(User, id=defender_id)
+
+    Game.objects.create(
+        attacker=request.user,
         defender=defender,
-        status=MatchStatus.WAITING,
+        status=Game.Status.PENDING,
+        rule=_random_rule(),
+        attacker_hand=hand,
+        defender_hand=_draw_hand(),
+        attacker_card=attacker_card,
     )
 
-    # "카드 뽑기"로 바로 넘어가고 싶으면 play로 리다이렉트
-    return redirect("game:play", match_id=match_id)
+    request.session.pop("new_match_hand", None)
+
+    return redirect("game:list")
 
 
 @login_required
@@ -132,25 +175,23 @@ def play(request: HttpRequest, match_id: int) -> HttpResponse:
 @login_required
 def cancel_match(request: HttpRequest, match_id: int) -> HttpResponse:
     """
-    진행중(WAITING)만 취소 가능
-    취소하면 메인으로 가고 게임 삭제
+    ❌ 게임 취소 (공격자 + 진행중만)
     """
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
 
-    m = _FAKE_DB.get(match_id)
-    if not m:
-        messages.error(request, "게임을 찾을 수 없습니다.")
-        return redirect("game:home")
+    game = get_object_or_404(Game, id=match_id)
 
-    if m.status != MatchStatus.WAITING:
-        messages.error(request, "진행중인 게임만 취소할 수 있습니다.")
-        return redirect("game:detail", match_id=match_id)
-
-    if m.attacker != request.user.username:
+    if game.attacker != request.user:
         messages.error(request, "공격자만 취소할 수 있습니다.")
-        return redirect("game:detail", match_id=match_id)
+        return redirect("game:list")
 
-    del _FAKE_DB[match_id]
+    if game.status != Game.Status.PENDING:
+        messages.error(request, "진행중인 게임만 취소할 수 있습니다.")
+        return redirect("game:list")
+
+    game.status = Game.Status.CANCELLED
+    game.save(update_fields=["status", "updated_at"])
+
     messages.success(request, "게임을 취소했습니다.")
-    return redirect("game:home")
+    return redirect("game:list")
