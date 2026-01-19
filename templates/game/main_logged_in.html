@@ -1,29 +1,39 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block content %}
-<div class="main-container" style="text-align: center; margin-top: 50px;">
-    <h1 style="color: #6f42c1; font-size: 3rem;">Piro Game</h1>
-    
-    <div style="margin: 20px 0;">
-        <h3>현재 플레이어: <strong>{{ user.username }}</strong></h3>
-        <p>점수: {{ user.total_score|default:0 }} 점</p>
+<link rel="stylesheet" href="{% static 'game/main_logged_in.css' %}">
+
+<section class="main-page">
+  <div class="main-board">
+    <div class="main-panel">
+
+      <h1 class="main-title">PIRO CARD GAME</h1>
+
+      <div class="player-info">
+        <div class="player-name">
+          현재 플레이어: <strong>{{ user.username }}</strong>
+        </div>
+        <div class="player-score">
+          점수: {{ user.total_score|default:0 }} 점
+        </div>
+      </div>
+
+      <div class="main-actions">
+        <a href="{% url 'game:new' %}" class="main-btn primary">
+          GAME START
+        </a>
+
+        <a href="{% url 'game:list' %}" class="main-btn secondary">
+          GAME LIST
+        </a>
+
+        <a href="{% url 'ranking' %}" class="main-btn accent">
+          RANKING
+        </a>
+      </div>
+
     </div>
-
-    <div class="button-group" style="display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin: 0 auto;">
-        
-        <a href="{% url 'game:new' %}" class="btn btn-primary" style="padding: 15px; background-color: #6f42c1; color: white; text-decoration: none; border-radius: 10px;">
-            GAME START (공격하기)
-        </a>
-
-        <a href="{% url 'game:list' %}" class="btn btn-secondary" style="padding: 15px; background-color: #e2e6ea; color: black; text-decoration: none; border-radius: 10px;">
-            GAME LIST (전적보기)
-        </a>
-
-        <a href="{% url 'ranking' %}" class="btn btn-info" style="padding: 15px; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 10px;">
-            RANKING (랭킹)
-        </a>
-
-    </div>
-</div>
+  </div>
+</section>
 {% endblock %}
