@@ -3,6 +3,7 @@ version: "3.9"
 services:
   web:
     image: issuejong/piro-cardgame:latest
+    pull_policy: always
     ports:
       - "8000:8000"
     environment:
