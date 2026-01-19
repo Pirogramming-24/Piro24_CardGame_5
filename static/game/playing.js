@@ -6,91 +6,110 @@ const defenderSelect = document.getElementById("defenderSelect");
 const drawBtn = document.getElementById("drawBtn");
 const cardRow = document.getElementById("cardRow");
 
-const selectedImg = document.getElementById("selectedImg");
-const selectedText = document.getElementById("selectedText");
+const selectedCardInput = document.getElementById("selectedCardInput");
+const selectedCardNum = document.getElementById("selectedCardNum");
+const finalCardDisplay = document.getElementById("finalCardDisplay");
 
-let defender = null;
-let pickedNumbers = []; // 5장 숫자
+// 서버에서 받은 데이터 사용
+let pickedNumbers = window.randomCards || []; 
 
-// STEP1: defender 선택되면 버튼 활성화
-defenderSelect.addEventListener("change", (e) => {
-  defender = e.target.value;
-  drawBtn.disabled = !defender;
-  console.log("됨");
-});
+// [STEP 1] 상대 선택 시 버튼 활성화
+if (defenderSelect) {
+    defenderSelect.addEventListener("change", (e) => {
+        if(drawBtn) drawBtn.disabled = !e.target.value;
+    });
+}
 
-drawBtn.addEventListener("click", () => {
-  // 1) step1 숨기고 step2 보여주기
-  step1.classList.add("hidden");
-  step2.classList.remove("hidden");
+// [STEP 2] DRAW 버튼 클릭 -> 애니메이션 시작
+if (drawBtn) {
+    drawBtn.addEventListener("click", () => {
+        step1.classList.add("hidden");
+        step2.classList.remove("hidden");
 
-  // 2) 10장 일렬 렌더
-  renderTenCards();
+        // 1. 10장 렌더링 (등장 애니메이션)
+        renderTenCards();
 
-  // 3) 2초 후 랜덤 5장만 앞으로(아래로) 나오게
-  setTimeout(() => {
-    pickedNumbers = pickFiveUnique();
-    markPickedCards(pickedNumbers);
-  }, 2000);
-});
+        // 2. 1.5초 후 유효한 5장만 활성화 (내려오는 애니메이션)
+        setTimeout(() => {
+            markPickedCards(pickedNumbers);
+        }, 1500);
+    });
+}
 
 function renderTenCards() {
-  cardRow.innerHTML = "";
+    cardRow.innerHTML = "";
 
-  for (let n = 1; n <= 10; n++) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "card-btn dim"; // 처음엔 전부 선택 불가(흐리게)
-    btn.dataset.value = String(n);
+    for (let n = 1; n <= 10; n++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        // card-enter: 등장 애니메이션 클래스 (CSS 필요)
+        btn.className = "card-btn dim card-enter"; 
+        btn.dataset.value = String(n);
+        
+        // 0.1초 간격으로 순차 등장
+        btn.style.animationDelay = `${n * 0.1}s`;
 
-    const img = document.createElement("img");
-    img.src = `${window.CARD_BASE_URL}card${n}.jpg`;
-    img.alt = `card ${n}`;
+        const img = document.createElement("img");
+        // ★ 수정됨: Django static 경로 활용
+        img.src = `${window.CARD_BASE_URL}card${n}.jpg`;
+        img.alt = `card ${n}`;
 
-    btn.appendChild(img);
-    cardRow.appendChild(btn);
-  }
-}
-
-// 1~10 중 5개 뽑기
-function pickFiveUnique() {
-  const nums = Array.from({ length: 10 }, (_, i) => i + 1);
-  for (let i = nums.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [nums[i], nums[j]] = [nums[j], nums[i]];
-  }
-  return nums.slice(0, 5);
-}
-
-// ✅ 10장 중 뽑힌 5장만 picked로 바꾸고 클릭 가능하게
-function markPickedCards(numbers) {
-  const allBtns = cardRow.querySelectorAll(".card-btn");
-
-  // 전부 dim 유지(클릭 불가)
-  allBtns.forEach((btn) => {
-    btn.classList.remove("picked");
-    btn.classList.add("dim");
-  });
-
-  // 뽑힌 카드만 picked + 클릭 가능
-  allBtns.forEach((btn) => {
-    const n = Number(btn.dataset.value);
-    if (numbers.includes(n)) {
-      btn.classList.remove("dim");
-      btn.classList.add("picked");
-
-      btn.addEventListener("click", () => {
-        showSelected(n);
-      }, { once: true }); // 중복 클릭 방지
+        btn.appendChild(img);
+        cardRow.appendChild(btn);
     }
-  });
 }
 
-function showSelected(n) {
-  // step2 숨기고 step3 표시
-  step2.classList.add("hidden");
-  step3.classList.remove("hidden");
+function markPickedCards(numbers) {
+    const allBtns = cardRow.querySelectorAll(".card-btn");
 
-  selectedImg.src = `${window.CARD_BASE_URL}card${n}.jpg`;
-  selectedText.textContent = `선택한 숫자 : ${n}`;
+    allBtns.forEach((btn) => {
+        const n = Number(btn.dataset.value);
+
+        // 등장 애니메이션 클래스 제거 (상태 고정)
+        btn.classList.remove("card-enter");
+        btn.style.animation = "none"; 
+
+        if (numbers.includes(n)) {
+            // [활성화 카드] dim 제거 -> picked 추가 (CSS transition으로 내려옴)
+            btn.classList.remove("dim");
+            btn.classList.add("picked");
+
+            btn.onclick = function() {
+                handleCardClick(this, n);
+            };
+        } else {
+            // [비활성화 카드] 계속 dim 유지
+            btn.classList.add("dim");
+            btn.style.cursor = "not-allowed";
+        }
+    });
+}
+
+function handleCardClick(clickedBtn, n) {
+    // 선택되지 않은 다른 picked 카드들은 다시 dim 처리
+    const allPicked = cardRow.querySelectorAll(".picked");
+    allPicked.forEach(b => {
+        if(b !== clickedBtn) {
+            b.classList.remove("picked");
+            b.classList.add("dim");
+            b.style.transform = "translateY(0) scale(1)"; // 위치 복귀
+        }
+    });
+
+    // 데이터 저장
+    if(selectedCardInput) selectedCardInput.value = n;
+    if(selectedCardNum) selectedCardNum.innerText = n;
+
+    // 0.6초 뒤 다음 단계 이동
+    setTimeout(() => {
+        step2.classList.add("hidden");
+        step3.classList.remove("hidden");
+    }, 600);
+
+    // 이미지 복사
+    if(finalCardDisplay) {
+        finalCardDisplay.innerHTML = clickedBtn.innerHTML;
+        const img = finalCardDisplay.querySelector('img');
+        if (img) img.className = 'selected-img';
+    }
 }

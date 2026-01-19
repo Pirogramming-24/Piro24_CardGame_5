@@ -158,3 +158,31 @@ select {
   opacity: 0.95;
   font-weight: 700;
 }
+
+/* 등장 애니메이션 (아래에서 위로) */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(50px) scale(0.8); }
+    to { opacity: 0.5; transform: translateY(0) scale(1); } /* dim 상태 */
+}
+
+.card-enter {
+    animation: fadeInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0; 
+}
+
+/* 활성화되어 내려온 카드 */
+.card-btn.picked {
+    opacity: 1 !important;
+    transform: translateY(30px) scale(1.1) !important; /* 아래로 내려오고 커짐 */
+    border-color: #ffd700;
+    box-shadow: 0 0 15px #ffd700;
+    z-index: 10;
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+
+/* 기본/비활성 카드 */
+.card-btn.dim {
+    opacity: 0.3;
+    transition: opacity 0.5s;
+}
