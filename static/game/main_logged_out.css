@@ -1,0 +1,75 @@
+:root{
+  --c-text: #F2F7F4;
+  --c-muted: #C6D8CF;
+  --c-btn: #8FB3A2;
+}
+
+.home-page{
+  width: 100%;
+  min-height: calc(100vh - 64px); /* base header 높이 고려 */
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding: 40px 24px 80px;
+}
+
+.home-board{
+  width: min(1100px, 100%);
+  height: 520px;
+  border-radius: 18px;
+  background: radial-gradient(
+    120% 120% at 50% 10%,
+    #21533b 0%,
+    #143625 45%,
+    #0f2f22 100%
+  );
+  box-shadow: 0 18px 50px rgba(0,0,0,.35);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.home-panel{
+  width: min(720px, 100%);
+  height: 300px;
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(15,47,34,.55) 0%,
+    rgba(15,47,34,.85) 100%
+  );
+  box-shadow: inset 0 0 0 1px rgba(198,216,207,.08);
+  display:flex;
+  flex-direction: column;
+  justify-content:center;
+  align-items:center;
+  gap: 36px;
+}
+
+.home-title{
+  color: var(--c-text);
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: 1.2px;
+}
+
+.login-btn{
+  width: 160px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(143,179,162,.28);
+  color: var(--c-text);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: .8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration: none;
+  transition: background .12s ease, color .12s ease;
+}
+
+.login-btn:hover{
+  background: rgba(143,179,162,.36);
+  color: #ffffff;
+}

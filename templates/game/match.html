@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'game/match.css' %}">
+
+<section class="match-page">
+  <div class="match-board">
+
+    <!-- 카드 10장 (장식용 / 클릭 없음) -->
+    <div class="card-row">
+      <img class="card" src="{% static 'cards/card1.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card2.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card3.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card4.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card5.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card6.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card7.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card8.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card9.jpg' %}" alt="">
+      <img class="card" src="{% static 'cards/card10.jpg' %}" alt="">
+    </div>
+
+    <div class="match-center">
+      {% if mode == "NEW" %}
+        <!-- 🔥 ATTACK 화면 -->
+        <form class="match-form" method="post" action="{% url 'game:new' %}">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="label">DEFENDER</div>
+            <div class="select-wrap">
+              <select id="defenderSelect" name="defender_id" class="select" required>
+                <option value="" selected disabled></option>
+                {% for u in candidates %}
+                  <option value="{{ u.id }}">{{ u.username|upper }}</option>
+                {% endfor %}
+              </select>
+              <span class="select-arrow">▼</span>
+            </div>
+          </div>
+
+          <!-- defender 선택 전엔 비활성, 선택하면 활성 -->
+          <button id="drawBtn" class="draw-btn" type="submit" disabled>
+            카드 뽑기
+          </button>
+        </form>
+
+      {% elif mode == "COUNTER" %}
+        <!-- 🔥 COUNTER 화면 -->
+        <form class="match-form" method="post" action="{% url 'game:play' match.id %}">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="label">ATTACKER</div>
+            <div class="pill">
+              {{ match.attacker.username|upper }}
+            </div>
+          </div>
+
+          <button class="draw-btn" type="submit">
+            카드 뽑기
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ✅ NEW 화면: defender 선택만으로 버튼 활성화 -->
+<script>
+  (function () {
+    const defenderSelect = document.getElementById("defenderSelect");
+    const drawBtn = document.getElementById("drawBtn");
+
+    if (!defenderSelect || !drawBtn) return;
+
+    const sync = () => {
+      drawBtn.disabled = !defenderSelect.value;
+    };
+
+    defenderSelect.addEventListener("change", sync);
+    sync();
+  })();
+</script>
+{% endblock %}
