@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'game/playing.css' %}">
+
+
+{% endblock %}
+
+{% block content %}
+<meta http-equiv="refresh" content="2; url={% url 'game:detail' match.id %}">
+
+<div class="playing-wrapper">
+    <div class="message-box">
+        <h1>⚔️ 승부 예측 중...</h1>
+        <p>상대방의 패와 비교하고 있습니다.</p>
+        <div class="loader"><span class="loader-circle"></span></div>
+    </div>
+</div>
+{% endblock %}

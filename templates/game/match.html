@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'game/playing.css' %}">
+{% endblock %}
+
+{% block content %}
+<form method="POST" action="{% if mode == 'NEW' %}{% url 'game:new' %}{% else %}{% url 'game:play' match_id=match.id %}{% endif %}" id="gameForm" class="game-form">
+    {% csrf_token %}
+    <input type="hidden" name="selected_card" id="selectedCardInput">
+
+    <div id="step1" class="step step1">
+        <div class="label">
+            {% if mode == "NEW" %}OPPONENT{% else %}DEFENSE{% endif %}
+        </div>
+
+        <div class="select-wrap">
+            {% if mode == "NEW" %}
+                <select name="defender" id="defenderSelect">
+                    <option value="" selected disabled>상대를 선택하세요</option>
+                    {% for u in defenders %}
+                        <option value="{{ u.username }}">{{ u.username }}</option>
+                    {% endfor %}
+                </select>
+                <span class="caret">▼</span>
+            {% else %}
+                <div style="text-align:center; padding: 12px; background: rgba(255,255,255,0.1); border-radius:10px; color:white;">
+                    VS <strong>{{ match.attacker.username }}</strong>
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="button" id="drawBtn" class="btn" {% if mode == "NEW" %}disabled{% endif %}>
+            CARD DRAW
+        </button>
+    </div>
+
+    <div id="step2" class="step step2 hidden">
+        <div class="hint">
+            {% if mode == "NEW" %}
+                공격할 카드를 선택하세요 (5장 중 택1)
+            {% else %}
+                방어할 카드를 선택하세요 (5장 중 택1)
+            {% endif %}
+        </div>
+        <div id="cardRow" class="card-row">
+            </div>
+    </div>
+
+    <div id="step3" class="step step3 hidden">
+        <div class="selected-wrap">
+            <div id="finalCardDisplay"></div> 
+            
+            <div class="selected-text">
+                SELECTED: <span id="selectedCardNum">?</span>
+            </div>
+
+            <button type="submit" class="btn" style="background: #ff4757;">
+                {% if mode == "NEW" %}ATTACK{% else %}COUNTER{% endif %}
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 1. Django 템플릿 변수를 전역 JS 변수로 변환 (playing.js에서 사용)
+    window.randomCards = {{ random_cards|default:"[]" }}; 
+    
+    // 2. 카드 이미지 경로 설정 (static 태그 활용)
+    window.CARD_BASE_URL = "{% static 'cards/' %}";
+</script>
+
+<script src="{% static 'game/playing.js' %}"></script>
+{% endblock %}

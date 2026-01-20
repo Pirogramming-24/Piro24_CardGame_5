@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'game/main_logged_in.css' %}">
+
+<section class="main-page">
+  <div class="main-board">
+    <div class="main-panel">
+
+      <h1 class="main-title">PIRO CARD GAME</h1>
+
+      <div class="player-info">
+        <div class="player-name">
+          현재 플레이어: <strong>{{ user.username }}</strong>
+        </div>
+        <div class="player-score">
+          점수: {{ user.total_score|default:0 }} 점
+        </div>
+      </div>
+
+      <div class="main-actions">
+        <a href="{% url 'game:new' %}" class="main-btn primary">
+          GAME START
+        </a>
+
+        <a href="{% url 'game:list' %}" class="main-btn secondary">
+          GAME LIST
+        </a>
+
+        <a href="{% url 'ranking' %}" class="main-btn accent">
+          RANKING
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

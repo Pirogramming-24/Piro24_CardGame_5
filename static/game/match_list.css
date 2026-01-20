@@ -1,0 +1,149 @@
+:root{
+  --c-text: #F2F7F4;
+  --c-muted: #C6D8CF;
+  --c-btn: #8FB3A2;
+  --c-accent: #49C6A0;
+  --c-gold: #C7A44B;
+}
+
+/* ==========================
+   ✅ base 수정 없이 "가운데 정렬" 강제
+   - base의 .page / .table이 이미 큰 박스를 만들고 있음
+   - 그 안에서 list-panel을 정확히 중앙에 놓는다
+   ========================== */
+
+/* base의 중앙정렬(grid place-items)이 padding-top:60px 때문에 밀릴 수 있어서
+   match_list 페이지에서는 table 안에서 다시 정렬을 잡아준다 */
+.page{
+  place-items: stretch !important; /* base의 center 대신 꽉 채움 */
+}
+
+.table{
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;     /* ✅ 세로 중앙 */
+  justify-content: center !important; /* ✅ 가로 중앙 */
+  padding: 0 !important;             /* base 테이블 padding 영향 최소화 */
+}
+
+/* ==========================
+   ✅ 화면 구성 (list-page -> list-board -> list-panel)
+   ========================== */
+
+.list-page{
+  width: 100% !important;
+  height: 100% !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 래퍼: 박스 느낌 제거 (여기서 박스 만들지 않음) */
+.list-board{
+  width: 100% !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+.list-panel{
+  width: min(820px, 100%);
+  height: min(460px, 62vh);
+  border-radius: 14px;
+  padding: 34px 46px 40px;
+  display:flex;
+  flex-direction: column;
+}
+
+.list-header{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items:center;
+  column-gap: 12px;
+  color: var(--c-text);
+  font-weight: 900;
+  letter-spacing: .6px;
+  font-size: 22px;
+  flex: 0 0 auto;
+}
+
+.list-header .col{
+  text-align:center;
+}
+
+.list-divider{
+  margin-top: 18px;
+  height: 1px;
+  background: rgba(198,216,207,.55);
+  flex: 0 0 auto;
+}
+
+/* ✅ 리스트만 스크롤 */
+.list-body{
+  margin-top: 26px;
+  display:flex;
+  flex-direction: column;
+  gap: 26px;
+
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  padding-right: 10px !important;
+}
+
+/* 스크롤바 */
+.list-body::-webkit-scrollbar{ width: 8px; }
+.list-body::-webkit-scrollbar-thumb{
+  background: rgba(143,179,162,.35);
+  border-radius: 999px;
+}
+.list-body::-webkit-scrollbar-thumb:hover{
+  background: rgba(143,179,162,.5);
+}
+.list-body::-webkit-scrollbar-track{ background: transparent; }
+
+.list-row{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items:center;
+  column-gap: 12px;
+}
+
+.cell{
+  text-align:center;
+  color: var(--c-text);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: .4px;
+}
+
+.status-link{
+  text-decoration: none;
+  display:inline-block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: color .12s ease, background .12s ease, transform .08s ease;
+}
+
+.status-link:hover{
+  color: #ffffff;
+  background: rgba(143,179,162,.14);
+}
+
+.status-link:active{
+  transform: translateY(1px);
+}
+
+.empty{
+  padding: 38px 12px;
+  text-align:center;
+  color: var(--c-muted);
+  font-weight: 700;
+}

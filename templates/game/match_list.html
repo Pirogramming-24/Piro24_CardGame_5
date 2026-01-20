@@ -1,0 +1,31 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block content %}
+<link rel="stylesheet" href="{% static 'game/match_list.css' %}" />
+
+<section class="list-page">
+  <div class="list-board">
+    <div class="list-panel">
+      <div class="list-header">
+        <div class="col">ATTACKER</div>
+        <div class="col">DEFENDER</div>
+        <div class="col">상황</div>
+      </div>
+      <div class="list-divider"></div>
+
+      <div class="list-body">
+        {% for r in rows %}
+        <div class="list-row">
+          <div class="cell">{{ r.attacker }}</div>
+          <div class="cell">{{ r.defender }}</div>
+
+          <a class="cell status-link" href="{% url 'game:detail' r.id %}">
+            {{ r.state_text }}
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

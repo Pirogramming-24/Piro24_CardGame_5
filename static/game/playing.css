@@ -1,0 +1,412 @@
+/* =========================================
+   1. 공통 유틸리티 & 로딩 화면
+   ========================================= */
+.hidden {
+  display: none !important;
+}
+
+.playing-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  text-align: center;
+  color: white;
+}
+
+.message-box h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.message-box p {
+  font-size: 1.2rem;
+  color: #ccc;
+  margin-bottom: 40px;
+}
+
+.loader {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+}
+
+.loader-circle {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 8px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #ffd700;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================
+   2. 게임 진행 (STEP 1~3)
+   ========================================= */
+.step {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  gap: 16px;
+}
+
+/* STEP 1 */
+.step1 {
+  align-content: center;
+  gap: 18px;
+}
+
+.label {
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.select-wrap {
+  position: relative;
+  width: 240px;
+}
+
+select {
+  width: 100%;
+  padding: 12px 44px 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f2f7f4;
+  outline: none;
+  appearance: none;
+}
+
+.caret {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.75;
+  pointer-events: none;
+  font-size: 12px;
+}
+
+.defender-box {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+}
+
+.btn {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.14);
+  color: #f2f7f4;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.not-allowed {
+  cursor: not-allowed !important;
+}
+
+/* STEP 2 - 핵심 수정 영역 */
+.step2 {
+  align-content: start;
+  gap: 18px;
+}
+
+.hint {
+  margin-top: 8px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.card-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  max-width: 850px;
+  margin: 30px auto;
+  padding-bottom: 120px;
+  width: 100%;
+}
+
+/* [핵심 1] 카드 버튼 컨테이너 */
+.card-btn {
+  position: relative;
+  /* 가상 요소의 기준점 */
+  display: inline-block;
+  /* 이미지 크기에 맞춤 */
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  /* 버튼 자체는 움직이지 않음 */
+}
+
+/* [핵심 2] 가만히 있는 테두리 (슬롯) 구현 */
+.card-btn::before {
+  content: '';
+  position: absolute;
+  /* 이미지보다 약간 크게 테두리 영역 확보 */
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 12px;
+  /* 이미지보다 약간 둥글게 */
+  border: 3px solid transparent;
+  /* 기본은 투명 */
+  box-shadow: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  /* 부드러운 전환 */
+  z-index: 0;
+  /* 이미지 뒤에 위치 */
+  pointer-events: none;
+  /* 클릭 방해 금지 */
+}
+
+/* [핵심 3] 실제 움직일 카드 이미지 */
+.card-btn img {
+  position: relative;
+  z-index: 1;
+  /* 테두리보다 앞에 위치 */
+  display: block;
+  width: 64px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.45);
+  /* 움직임(transform)을 부드럽게 설정 */
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, opacity 0.2s ease;
+}
+
+/* 기본 hover (선택되지 않았을 때만) */
+.card-btn:not(.picked):hover img {
+  transform: translateY(-6px) scale(1.03);
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
+}
+
+/* [핵심 4] 카드가 선택되었을 때 (.picked) */
+.card-btn.picked {
+  opacity: 1 !important;
+  z-index: 10;
+}
+
+/* =========================================
+   [추가] 은은한 빛 깜빡임 애니메이션
+   ========================================= */
+@keyframes softPulse {
+  0% {
+    border-color: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.05);
+  }
+
+  50% {
+    border-color: rgba(255, 215, 0, 0.4);
+    /* 가장 밝을 때도 너무 쨍하지 않게 */
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+  }
+
+  100% {
+    border-color: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.05);
+  }
+}
+
+/* =========================================
+   [수정] 선택된 카드의 빈자리 테두리 (::before)
+   ========================================= */
+.card-btn.picked::before {
+  /* 투명도는 1로 두되, 색상 자체를 연하게 설정 */
+  opacity: 1;
+
+  /* 여기서 애니메이션 실행 (2초 동안 무한 반복) */
+  animation: softPulse 2s infinite ease-in-out;
+}
+
+/* =========================================
+   [수정] 내려온 카드 이미지 (img)
+   - 카드가 너무 번쩍거리지 않도록 기존 빛 효과 제거 혹은 약화
+   ========================================= */
+.card-btn.picked img {
+  transform: translateY(70px) scale(1.1) !important;
+
+  /* 카드 자체의 빛은 제거하거나 아주 약하게 (아래는 약하게 남기는 코드) */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  /* 필요하다면 filter: drop-shadow(...) 제거 */
+}
+
+
+/* 비활성 카드 (Dim) */
+.card-btn.dim {
+  pointer-events: none;
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
+}
+
+.card-btn.dim img {
+  opacity: 0.55;
+  filter: grayscale(0.2);
+  transform: translateY(0);
+}
+
+/* STEP 3 */
+.step3 {
+  align-content: center;
+}
+
+.selected-wrap {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+}
+
+.selected-img {
+  width: 160px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.55);
+}
+
+.selected-text {
+  opacity: 0.95;
+  font-weight: 700;
+}
+
+/* =========================================
+   3. 애니메이션
+   ========================================= */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.8);
+  }
+
+  to {
+    opacity: 0.5;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-enter {
+  animation: fadeInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 0;
+}
+
+/* =========================================
+   4. 결과 화면
+   ========================================= */
+.result-container {
+  max-width: 500px;
+  margin: 30px auto;
+  text-align: center;
+  color: #fff;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.vs-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 8px 18px;
+  font-size: 0.95rem;
+  border-radius: 30px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.status-badge.finished {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.result-box h2 {
+  margin: 5px 0 15px 0;
+  font-size: 1.8rem;
+  line-height: 1.2;
+}
+
+.card-box {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #ffd700;
+  margin: 10px 0;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.delta-score {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.vs-middle {
+  align-self: center;
+  font-size: 1.5rem;
+  margin: 0 10px;
+  color: #888;
+}
+
+.btn-list {
+  display: inline-block;
+  padding: 12px 25px;
+  background: #3a4b3c;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-top: 25px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-list:hover {
+  background: #4a5b4c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.btn-counter {
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 15px;
+  color: white;
+}
+
+.btn-counter:hover {
+  color: white;
+}

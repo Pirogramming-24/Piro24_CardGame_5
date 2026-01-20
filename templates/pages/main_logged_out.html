@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'pages/main_logged_out.css' %}">
+
+<section class="home-page">
+  <div class="home-board">
+
+    <div class="home-panel">
+      <div class="home-title">PIRO CARD GAME</div>
+
+      <!-- Django 기본 로그인 페이지로 이동 -->
+      <a href="{% url 'account_login' %}" class="login-btn">
+        LOG IN
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

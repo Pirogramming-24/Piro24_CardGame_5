@@ -1,0 +1,289 @@
+/* =========================================
+   1. 공통 레이아웃 & 타이틀
+   ========================================= */
+
+.auth-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ranking-container {
+    justify-content: flex-start;
+    padding-top: 30px;
+}
+
+.ranking-header {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.page-title {
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: #e6c975;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    margin-bottom: 30px;
+    font-family: 'Georgia', serif;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* =========================================
+   2. 로그인 페이지 스타일 (기존 유지)
+   ========================================= */
+.login-box {
+    width: 100%;
+    max-width: 400px;
+    background: rgba(20, 30, 25, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(230, 201, 117, 0.15);
+    border-radius: 12px;
+    padding: 35px 25px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 48px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.social-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.social-btn span {
+    margin-right: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.social-btn.google {
+    background-color: #f8f9fa;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+}
+
+.social-btn.kakao {
+    background-color: #FEE500;
+    color: #3C1E1E;
+}
+
+.divider {
+    margin: 20px 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 42%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+.info-text {
+    font-size: 0.8rem;
+    color: #aaa;
+    line-height: 1.4;
+    margin-top: 15px;
+}
+
+/* =========================================
+   3. 랭킹 페이지 스타일 (완벽 분리됨 ✨)
+   ========================================= */
+
+.ranking-list-box {
+    width: 90%;
+    max-width: 850px;
+    height: 100%;
+    max-height: 500px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(230, 201, 117, 0.15);
+    border-radius: 12px;
+    padding: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e6c975 rgba(0, 0, 0, 0.2);
+}
+
+.ranking-list-box::-webkit-scrollbar {
+    width: 7px;
+}
+
+.ranking-list-box::-webkit-scrollbar-thumb {
+    background-color: rgba(230, 201, 117, 0.5);
+    border-radius: 4px;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #eee;
+    table-layout: fixed;
+    /* 칸 너비 고정 */
+}
+
+/* --- 헤더 및 셀 공통 --- */
+.ranking-table th,
+.ranking-table td {
+    padding: 16px 10px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    font-size: 1.1rem;
+    white-space: nowrap;
+    /* 줄바꿈 방지 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* 내용 길면 ... 표시 */
+}
+
+/* --- 헤더 스타일 --- */
+.ranking-table th {
+    position: sticky;
+    top: 0;
+    background: rgba(25, 45, 35, 0.98);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #e6c975;
+    border-bottom: 1px solid rgba(230, 201, 117, 0.2);
+    z-index: 10;
+}
+
+/* --- 컬럼별 너비(Width) 제어 --- */
+.col-rank {
+    width: 15%;
+}
+
+.col-player {
+    width: 40%;
+}
+
+.col-record {
+    width: 25%;
+}
+
+.col-score {
+    width: 20%;
+}
+
+/* --- Player 컬럼(2번째) 왼쪽 정렬 --- */
+.ranking-table th:nth-child(2),
+.ranking-table td:nth-child(2) {
+    text-align: left;
+    padding-left: 30px;
+}
+
+.ranking-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* --- 텍스트 및 색상 스타일 --- */
+.rank-1 td {
+    color: #e6c975;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.rank-2 td {
+    color: #c0c0c0;
+    font-weight: 600;
+}
+
+.rank-3 td {
+    color: #b08d57;
+    font-weight: 600;
+}
+
+.record-cell {
+    color: #ccc;
+}
+
+.win-count {
+    color: #e6c975;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.score-cell {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+/* 점수 칸 강조 */
+
+.me-badge {
+    font-size: 0.8rem;
+    color: #ffd700;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.empty-msg {
+    padding: 40px;
+    color: #aaa;
+    text-align: center !important;
+}
+
+/* --- 뒤로가기 버튼 --- */
+.btn-back {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 28px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #bbb;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-color: #fff;
+}
+
+/* =========================================
+   4. 내 랭킹 강조
+   ========================================= */
+tr.my-rank {
+    background-color: rgba(230, 201, 117, 0.08) !important;
+    font-weight: 600;
+}
+
+tr.my-rank td {
+    color: #ffffff;
+}
